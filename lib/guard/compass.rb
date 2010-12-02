@@ -13,6 +13,9 @@ module Guard
     
     VERSION = '0.0.6'
     
+    autoload :Reactor, 'guard/livereload/reactor'
+    attr_accessor :reactor
+    
     def initialize(watchers = [], options = {})
       super
       @reporter = Reporter.new
@@ -23,12 +26,21 @@ module Guard
     
     # Compile all the sass|scss stylesheets
     def start
+      options[:api_version]    ||= '1.4'
+      options[:host]           ||= '0.0.0.0'
+      options[:port]           ||= '35729'
+      options[:apply_js_live]  ||= true
+      options[:apply_css_live] ||= true
+      
+      @reactor = Reactor.new(options)
+      
       create_updater
       UI.info "Guard::Compass is watching at your stylesheets."
       true
     end
     
     def stop
+      reactor.stop
       @updater = nil
       true
     end
@@ -47,6 +59,7 @@ module Guard
     # Compile the changed stylesheets
     def run_on_change(paths)
       perform
+      reactor.reload_browser(paths)
     end
     
     private
