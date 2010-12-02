@@ -58,6 +58,7 @@ module Guard
     
     # Compile the changed stylesheets
     def run_on_change(paths)
+      UI.info("change noted for #{paths.join(", ")}")
       perform
       reactor.reload_browser(paths)
     end
